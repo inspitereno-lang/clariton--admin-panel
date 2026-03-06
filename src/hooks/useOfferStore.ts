@@ -1,7 +1,6 @@
 import { create } from 'zustand';
-import axios from 'axios';
+import api from '@/services/api';
 
-const API_BASE_URL = 'http://localhost:5050/api';
 
 export interface Offer {
     _id: string;
@@ -40,7 +39,7 @@ export const useOfferStore = create<OfferState>((set: any, get: any) => ({
     fetchOffers: async () => {
         set({ isLoading: true, error: null });
         try {
-            const response = await axios.get(`${API_BASE_URL}/offers`, { withCredentials: true });
+            const response = await api.get('/offers');
             set({ offers: response.data.data, isLoading: false });
         } catch (error: any) {
             set({
@@ -53,7 +52,7 @@ export const useOfferStore = create<OfferState>((set: any, get: any) => ({
     addOffer: async (offerData: any) => {
         set({ isLoading: true, error: null });
         try {
-            await axios.post(`${API_BASE_URL}/offers`, offerData, { withCredentials: true });
+            await api.post('/offers', offerData);
             await get().fetchOffers();
         } catch (error: any) {
             set({
@@ -67,7 +66,7 @@ export const useOfferStore = create<OfferState>((set: any, get: any) => ({
     updateOffer: async (id: string, offerData: any) => {
         set({ isLoading: true, error: null });
         try {
-            await axios.put(`${API_BASE_URL}/offers/${id}`, offerData, { withCredentials: true });
+            await api.put(`/offers/${id}`, offerData);
             await get().fetchOffers();
         } catch (error: any) {
             set({
@@ -81,7 +80,7 @@ export const useOfferStore = create<OfferState>((set: any, get: any) => ({
     deleteOffer: async (id: string) => {
         set({ isLoading: true, error: null });
         try {
-            await axios.delete(`${API_BASE_URL}/offers/${id}`, { withCredentials: true });
+            await api.delete(`/offers/${id}`);
             await get().fetchOffers();
         } catch (error: any) {
             set({
