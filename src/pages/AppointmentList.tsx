@@ -98,6 +98,7 @@ export function AppointmentList() {
                             <TableHeader>
                                 <TableRow className="bg-gray-50 hover:bg-gray-50">
                                     <TableHead className="font-semibold text-gray-700">PATIENT</TableHead>
+                                    <TableHead className="font-semibold text-gray-700">STORE</TableHead>
                                     <TableHead className="font-semibold text-gray-700">DATE</TableHead>
                                     <TableHead className="font-semibold text-gray-700">TIME</TableHead>
                                     <TableHead className="font-semibold text-gray-700">LANGUAGE</TableHead>
@@ -127,6 +128,11 @@ export function AppointmentList() {
                                                     <span className="font-medium text-gray-900">{app.fullName}</span>
                                                     <span className="text-xs text-gray-500">{app.phone}</span>
                                                 </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <span className="text-sm text-gray-900 font-medium">
+                                                    {app.store?.name || 'N/A'}
+                                                </span>
                                             </TableCell>
                                             <TableCell className="text-gray-600">
                                                 <div className="flex items-center gap-2">

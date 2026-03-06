@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { Bell, Lock, User as UserIcon, Palette, Loader2 } from 'lucide-react';
+import { User as UserIcon, Palette, Loader2, Lock } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { userService } from '@/services/userService';
 import type { User } from '@/types';
@@ -16,6 +15,13 @@ export function Settings() {
   const { isGrayscale, toggleGrayscale } = useTheme();
   const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
 
   useEffect(() => {
     fetchProfile();
@@ -32,6 +38,53 @@ export function Settings() {
       toast.error('Failed to load profile');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const response = await userService.updateProfile({});
+
+      if (response.success) {
+        toast.success('Settings updated successfully');
+      }
+    } catch (error) {
+      toast.error('Failed to update settings');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      toast.error('Please fill in all password fields');
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      toast.error('New password must be at least 6 characters');
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error('New passwords do not match');
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      const response = await userService.changePassword(passwordForm);
+
+      if (response.success) {
+        toast.success('Password changed successfully');
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      }
+    } catch (error: any) {
+      const message = error?.response?.data?.message || 'Failed to change password';
+      toast.error(message);
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -88,38 +141,56 @@ export function Settings() {
             </CardContent>
           </Card>
 
-          {/* Notification Settings */}
+          {/* Security - Change Password */}
           <Card className="border-0 shadow-sm bg-card text-card-foreground">
             <CardHeader className="border-b border-border">
               <CardTitle className="text-lg flex items-center gap-2">
-                <Bell className="w-5 h-5 text-red-500" />
-                Notifications
+                <Lock className="w-5 h-5 text-red-500" />
+                Security
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Email Notifications</p>
-                  <p className="text-sm text-muted-foreground">Receive email updates about your account</p>
-                </div>
-                <Switch defaultChecked />
+            <CardContent className="p-6 space-y-6">
+              <div>
+                <Label htmlFor="currentPassword" className="text-sm font-medium">Current Password</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  placeholder="Enter current password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                  className="mt-2 bg-background border-input"
+                />
               </div>
-              <Separator className="bg-border" />
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Low Stock Alerts</p>
-                  <p className="text-sm text-muted-foreground">Get notified when products are running low</p>
-                </div>
-                <Switch defaultChecked />
+              <div>
+                <Label htmlFor="newPassword" className="text-sm font-medium">New Password</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  placeholder="Enter new password (min 6 characters)"
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                  className="mt-2 bg-background border-input"
+                />
               </div>
-              <Separator className="bg-border" />
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">New Order Notifications</p>
-                  <p className="text-sm text-muted-foreground">Receive alerts for new orders</p>
-                </div>
-                <Switch defaultChecked />
+              <div>
+                <Label htmlFor="confirmPassword" className="text-sm font-medium">Confirm New Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  className="mt-2 bg-background border-input"
+                />
               </div>
+              <Button
+                onClick={handleChangePassword}
+                disabled={changingPassword}
+                className="bg-red-500 hover:bg-red-600 text-white"
+              >
+                {changingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Change Password
+              </Button>
             </CardContent>
           </Card>
 
@@ -139,47 +210,17 @@ export function Settings() {
                 </div>
                 <Switch checked={isGrayscale} onCheckedChange={toggleGrayscale} />
               </div>
-              <Separator className="bg-border" />
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Compact View</p>
-                  <p className="text-sm text-muted-foreground">Show more content with less spacing</p>
-                </div>
-                <Switch />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Security */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="border-b border-gray-100">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Lock className="w-5 h-5 text-red-500" />
-                Security
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              <div>
-                <Label htmlFor="currentPassword" className="text-sm font-medium">Current Password</Label>
-                <Input id="currentPassword" type="password" className="mt-2" />
-              </div>
-              <div>
-                <Label htmlFor="newPassword" className="text-sm font-medium">New Password</Label>
-                <Input id="newPassword" type="password" className="mt-2" />
-              </div>
-              <div>
-                <Label htmlFor="confirmPassword" className="text-sm font-medium">Confirm New Password</Label>
-                <Input id="confirmPassword" type="password" className="mt-2" />
-              </div>
-              <Button className="bg-red-500 hover:bg-red-600 text-white">
-                Change Password
-              </Button>
             </CardContent>
           </Card>
 
           {/* Save Button */}
           <div className="flex justify-end">
-            <Button className="bg-red-500 hover:bg-red-600 text-white px-8">
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="bg-red-500 hover:bg-red-600 text-white px-8"
+            >
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
             </Button>
           </div>

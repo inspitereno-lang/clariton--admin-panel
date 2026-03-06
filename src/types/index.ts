@@ -110,6 +110,7 @@ export interface Appointment {
     _id: string;
     time: string;
   };
+  store: Store;
   status: 'pending' | 'confirmed' | 'cancelled';
   language: {
     _id: string;

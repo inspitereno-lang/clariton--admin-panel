@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Search, Edit2, Trash2, ChevronLeft, ChevronRight, Store, Clock, MapPin } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, ChevronLeft, ChevronRight, Store, Clock, MapPin, Calendar } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import type { Store as StoreType } from '@/types';
@@ -212,6 +212,7 @@ export function StoreList({ stores, onDelete, onUpdate }: StoreListProps) {
                   <TableHead className="font-semibold text-gray-700">OPERATING HOURS</TableHead>
                   <TableHead className="font-semibold text-gray-700">STATUS</TableHead>
                   <TableHead className="font-semibold text-gray-700">STATUS MODE</TableHead>
+                  <TableHead className="font-semibold text-gray-700">APPOINTMENTS</TableHead>
                   <TableHead className="font-semibold text-gray-700 text-right">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
@@ -272,6 +273,17 @@ export function StoreList({ stores, onDelete, onUpdate }: StoreListProps) {
                           {store.statusMode === 'Auto' ? 'Auto' : 'Manual'}
                         </Badge>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                        onClick={() => navigate(`/appointments?search=${store.name}`)}
+                      >
+                        <Calendar className="w-4 h-4 mr-1" />
+                        View
+                      </Button>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
