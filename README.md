@@ -72,3 +72,4 @@ export default defineConfig([
 ])
 ```
 # clariton-admin-panel
+# clariton--admin-panel
