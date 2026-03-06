@@ -1,3 +1,5 @@
 node_modules
 
 dist
+public/claritone-78475-firebase-adminsdk-fbsvc-dfea881c90.json
+.env
