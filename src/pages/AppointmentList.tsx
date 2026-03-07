@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Search, Eye, Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Eye, Calendar, Clock, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { appointmentService } from '@/services/appointmentService';
 import type { Appointment } from '@/types';
 import { toast } from 'sonner';
@@ -24,17 +24,20 @@ export function AppointmentList() {
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [pagination, setPagination] = useState({ totalPages: 1, total: 0 });
+    const [searchParams, setSearchParams] = useSearchParams();
+    const storeId = searchParams.get('storeId');
+    const storeName = searchParams.get('storeName');
 
     const itemsPerPage = 10;
 
     useEffect(() => {
         fetchAppointments();
-    }, [currentPage]);
+    }, [currentPage, storeId]);
 
     const fetchAppointments = async () => {
         try {
             setLoading(true);
-            const response = await appointmentService.getAllAppointments(currentPage, itemsPerPage);
+            const response = await appointmentService.getAllAppointments(currentPage, itemsPerPage, undefined, undefined, storeId || undefined);
             if (response.success) {
                 setAppointments(response.data);
                 setPagination({
@@ -88,6 +91,24 @@ export function AppointmentList() {
                                     className="pl-10"
                                 />
                             </div>
+                            {storeId && (
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-50 border border-orange-100 rounded-lg">
+                                    <span className="text-sm font-medium text-orange-700">
+                                        Store: {storeName || 'Selected Store'}
+                                    </span>
+                                    <button
+                                        onClick={() => {
+                                            const newParams = new URLSearchParams(searchParams);
+                                            newParams.delete('storeId');
+                                            newParams.delete('storeName');
+                                            setSearchParams(newParams);
+                                        }}
+                                        className="p-0.5 hover:bg-orange-100 rounded-full transition-colors"
+                                    >
+                                        <X className="w-3.5 h-3.5 text-orange-600" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>

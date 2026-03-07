@@ -279,7 +279,7 @@ export function StoreList({ stores, onDelete, onUpdate }: StoreListProps) {
                         variant="ghost"
                         size="sm"
                         className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                        onClick={() => navigate(`/appointments?search=${store.name}`)}
+                        onClick={() => navigate(`/appointments?storeId=${store._id}&storeName=${encodeURIComponent(store.name)}`)}
                       >
                         <Calendar className="w-4 h-4 mr-1" />
                         View
