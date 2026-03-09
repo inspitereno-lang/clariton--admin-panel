@@ -6,7 +6,6 @@ import {
   Store,
   Settings,
   LogOut,
-  User,
   ShoppingBag,
   Calendar,
   Users,
@@ -14,8 +13,6 @@ import {
   Database
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-import { useUser } from '@/hooks/useStore';
 
 interface NavItem {
   label: string;
@@ -41,7 +38,6 @@ const settingsNavItems: NavItem[] = [
 ];
 
 export function Sidebar({ onLogout }: { onLogout: () => void }) {
-  const { user } = useUser();
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
@@ -118,20 +114,7 @@ export function Sidebar({ onLogout }: { onLogout: () => void }) {
 
       {/* User Profile */}
       <div className="p-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-sidebar-accent cursor-pointer">
-          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-            <User className="w-5 h-5 text-muted-foreground" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">
-              {user?.fullName || 'Admin User'}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">
-              {user?.Email || 'admin@claritone.com'}
-            </p>
-          </div>
-          <Settings className="w-4 h-4 text-muted-foreground" />
-        </div>
+
         <button
           onClick={onLogout}
           className="flex items-center gap-3 px-4 py-3 w-full text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg mt-2 transition-colors"
