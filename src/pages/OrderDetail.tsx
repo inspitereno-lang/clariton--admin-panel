@@ -11,15 +11,19 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { ChevronLeft, Package, User, MapPin, CreditCard } from 'lucide-react';
+import { ChevronLeft, Package, User, MapPin, CreditCard, Phone } from 'lucide-react';
 import { orderService } from '@/services/orderService';
-import type { Order } from '@/types';
+import { userService } from '@/services/userService';
+import api from '@/services/api';
+import type { Order, Address } from '@/types';
 import { toast } from 'sonner';
 
 export function OrderDetail() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [order, setOrder] = useState<Order | null>(null);
+    const [userDetails, setUserDetails] = useState<any>(null);
+    const [fetchedAddress, setFetchedAddress] = useState<Address | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -31,7 +35,31 @@ export function OrderDetail() {
             setLoading(true);
             const response = await orderService.getOrderById(orderId);
             if (response.success) {
-                setOrder(response.data);
+                const orderData = response.data;
+                console.log('Order data received:', orderData);
+                console.log('Address field:', orderData.address, 'Type:', typeof orderData.address);
+                setOrder(orderData);
+
+                // If address is still a string ID (not populated), fetch it directly
+                if (orderData.address && typeof orderData.address === 'string') {
+                    try {
+                        const addrResponse = await api.get(`/addresses/${orderData.address}`);
+                        console.log('Fetched address:', addrResponse.data);
+                        if (addrResponse.data?.success && addrResponse.data?.data) {
+                            setFetchedAddress(addrResponse.data.data);
+                        }
+                    } catch (addrErr) {
+                        console.log('Could not fetch address by ID:', addrErr);
+                    }
+                }
+
+                // Fetch full user details to get phone number
+                if (orderData.user?._id) {
+                    const userResponse = await userService.getUserById(orderData.user._id);
+                    if (userResponse.success) {
+                        setUserDetails(userResponse.data.user);
+                    }
+                }
             }
         } catch (error) {
             toast.error('Failed to fetch order details');
@@ -74,6 +102,10 @@ export function OrderDetail() {
     if (!order) {
         return <div className="p-8 text-center text-red-500">Order not found.</div>;
     }
+
+    const shippingAddress = typeof order.address === 'object' && order.address !== null
+        ? order.address as Address
+        : fetchedAddress;
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -173,15 +205,26 @@ export function OrderDetail() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-6">
-                                {/* Note: Address structure depends on your model, assuming common fields */}
-                                <div className="text-gray-600">
-                                    <p className="font-medium text-gray-900">{order.user?.fullName || 'Deleted User'}</p>
-                                    {/* Placeholder for address detail if it was populated */}
-                                    <p className="text-sm mt-1">Please refer to user profile for contact details.</p>
+                                <div className="text-gray-600 space-y-1">
+                                    <p className="font-medium text-gray-900">{shippingAddress?.fullName || order.user?.fullName || 'N/A'}</p>
+                                    {shippingAddress ? (
+                                        <div className="text-sm">
+                                            <p>{shippingAddress.street}</p>
+                                            <p>{shippingAddress.city}{shippingAddress.state ? `, ${shippingAddress.state}` : ''} {shippingAddress.zipCode || ''}</p>
+                                            {shippingAddress.country && <p>{shippingAddress.country}</p>}
+                                            <p className="mt-2 font-medium flex items-center gap-2">
+                                                <Phone className="w-3 h-3 text-gray-400" />
+                                                {shippingAddress.phone || userDetails?.Phone || 'N/A'}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm italic text-gray-400">Address details not available</p>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
+
 
                     {/* Customer & Payment Info */}
                     <div className="space-y-6">
@@ -201,6 +244,10 @@ export function OrderDetail() {
                                     <div>
                                         <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Email</p>
                                         <p className="text-sm text-gray-900">{order.user?.Email || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Phone</p>
+                                        <p className="text-sm text-gray-900">{userDetails?.Phone || order.user?.Phone || 'N/A'}</p>
                                     </div>
                                 </div>
                             </CardContent>

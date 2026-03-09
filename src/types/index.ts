@@ -90,6 +90,18 @@ export interface OrderItem {
   status: 'Pending' | 'Cancelled' | 'Accepted';
 }
 
+export interface Address {
+  _id: string;
+  fullName: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  isDefault: boolean;
+}
+
 export interface Order {
   _id: string;
   user: User;
@@ -98,7 +110,7 @@ export interface Order {
   paymentStatus: 'Pending' | 'Success' | 'Failed';
   razorpayOrderId: string;
   createdAt: string;
-  address: any; // Can be typed more specifically if needed
+  address: string | Address;
 }
 
 export interface Appointment {
