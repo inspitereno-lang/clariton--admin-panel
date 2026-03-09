@@ -122,6 +122,7 @@ export function AppointmentList() {
                                     <TableHead className="font-semibold text-gray-700">STORE</TableHead>
                                     <TableHead className="font-semibold text-gray-700">DATE</TableHead>
                                     <TableHead className="font-semibold text-gray-700">TIME</TableHead>
+                                    <TableHead className="font-semibold text-gray-700">TYPE</TableHead>
                                     <TableHead className="font-semibold text-gray-700">LANGUAGE</TableHead>
                                     <TableHead className="font-semibold text-gray-700">NOTES</TableHead>
                                     <TableHead className="font-semibold text-gray-700">STATUS</TableHead>
@@ -165,6 +166,16 @@ export function AppointmentList() {
                                                 <div className="flex items-center gap-2">
                                                     <Clock className="w-3 h-3" />
                                                     {app.slot?.time || 'N/A'}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-col">
+                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium w-fit ${
+                                                        app.consultation === 'Online' ? 'bg-purple-100 text-purple-700' : 
+                                                        'bg-gray-100 text-gray-700'
+                                                    }`}>
+                                                        {app.consultation}
+                                                    </span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>

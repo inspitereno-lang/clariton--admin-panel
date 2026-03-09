@@ -118,6 +118,7 @@ export interface Appointment {
   };
   user?: User;
   additionalNotes?: string;
+  consultation: string;
   createdAt: string;
 }
 

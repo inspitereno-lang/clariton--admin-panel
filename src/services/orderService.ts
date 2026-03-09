@@ -1,8 +1,11 @@
 import api from './api';
 
 export const orderService = {
-    getAllOrders: async (page = 1, limit = 10) => {
-        const response = await api.get(`/orders?page=${page}&limit=${limit}`);
+    getAllOrders: async (page = 1, limit = 10, status?: string | null, search?: string) => {
+        let url = `/orders?page=${page}&limit=${limit}`;
+        if (status) url += `&status=${status}`;
+        if (search) url += `&search=${search}`;
+        const response = await api.get(url);
         return response.data;
     },
     getOrderById: async (id: string) => {

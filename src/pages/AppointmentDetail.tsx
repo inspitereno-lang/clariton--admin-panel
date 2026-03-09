@@ -170,6 +170,15 @@ export function AppointmentDetail() {
                                     {appointment.status}
                                 </span>
                             </div>
+                            <div className="pt-4 border-t">
+                                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">Consultation Type</p>
+                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                                    appointment.consultation === 'Online' ? 'bg-purple-100 text-purple-700' : 
+                                    'bg-gray-100 text-gray-700'
+                                }`}>
+                                    {appointment.consultation}
+                                </span>
+                            </div>
                         </CardContent>
                     </Card>
 

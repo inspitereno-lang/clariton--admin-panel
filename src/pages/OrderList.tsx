@@ -27,17 +27,34 @@ export function OrderList() {
     const [stats, setStats] = useState({ totalOrders: 0, pendingOrders: 0, acceptedOrders: 0 });
     const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const itemsPerPage = 10;
+
+    // Debounce search query
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [statusFilter, debouncedSearch]);
 
     useEffect(() => {
         fetchOrders();
+    }, [currentPage, statusFilter, debouncedSearch]);
+
+    useEffect(() => {
         fetchStats();
-    }, [currentPage]);
+    }, []);
 
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            const response = await orderService.getAllOrders(currentPage, itemsPerPage);
+            const response = await orderService.getAllOrders(currentPage, itemsPerPage, statusFilter, debouncedSearch);
             if (response.success) {
                 setOrders(response.data);
                 setPagination({
@@ -114,15 +131,7 @@ export function OrderList() {
         }
     };
 
-    const filteredOrders = orders.filter(order => {
-        const matchesSearch = order.razorpayOrderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.user.Email.toLowerCase().includes(searchQuery.toLowerCase());
-
-        const matchesStatus = statusFilter ? order.items.some(item => item.status === statusFilter) : true;
-
-        return matchesSearch && matchesStatus;
-    });
+    const displayOrders = orders;
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -216,18 +225,18 @@ export function OrderList() {
                             <TableBody>
                                 {loading ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                                        <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                                             Loading orders...
                                         </TableCell>
                                     </TableRow>
-                                ) : filteredOrders.length === 0 ? (
+                                ) : displayOrders.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                                        <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                                             No orders found.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    filteredOrders.map((order) => (
+                                    displayOrders.map((order) => (
                                         <TableRow key={order._id} className="hover:bg-gray-50">
                                             <TableCell className="font-medium text-gray-900">
                                                 #{order.razorpayOrderId.slice(-8).toUpperCase()}
