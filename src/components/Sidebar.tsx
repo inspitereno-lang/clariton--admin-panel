@@ -10,6 +10,7 @@ import {
   Calendar,
   Users,
   Image as ImageIcon,
+  ImagePlus,
   Database
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -30,6 +31,7 @@ const mainNavItems: NavItem[] = [
   { label: 'Appointments', path: '/appointments', icon: Calendar },
   { label: 'Customers', path: '/customers', icon: Users },
   { label: 'Banners', path: '/banners', icon: ImageIcon },
+  { label: 'Product Banners', path: '/product-banners', icon: ImagePlus },
   { label: 'Master Data', path: '/master-data', icon: Database },
 ];
 

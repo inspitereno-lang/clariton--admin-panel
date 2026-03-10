@@ -15,6 +15,8 @@ import { AppointmentDetail } from '@/pages/AppointmentDetail';
 import { CustomerList } from '@/pages/CustomerList';
 import BannerList from '@/pages/BannerList';
 import BannerForm from '@/pages/BannerForm';
+import ProductBannerList from '@/pages/ProductBannerList';
+import ProductBannerForm from '@/pages/ProductBannerForm';
 import { OfferList } from '@/pages/OfferList';
 import { OfferForm } from '@/pages/OfferForm';
 import MasterData from '@/pages/MasterData';
@@ -191,6 +193,18 @@ function App() {
                     <Route
                       path="/banners/edit/:id"
                       element={<BannerForm />}
+                    />
+                    <Route
+                      path="/product-banners"
+                      element={<ProductBannerList />}
+                    />
+                    <Route
+                      path="/product-banners/add"
+                      element={<ProductBannerForm />}
+                    />
+                    <Route
+                      path="/product-banners/edit/:id"
+                      element={<ProductBannerForm />}
                     />
                     <Route
                       path="/master-data"

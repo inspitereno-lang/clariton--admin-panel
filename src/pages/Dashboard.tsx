@@ -1,8 +1,11 @@
 import { Header } from '@/components/Header';
 import { Card, CardContent } from '@/components/ui/card';
-import { Package, Store, TrendingUp, ArrowUpRight, ArrowDownRight, RefreshCcw } from 'lucide-react';
+import { Package, Store, TrendingUp, ArrowUpRight, ArrowDownRight, RefreshCcw, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Product, Store as StoreType } from '@/types';
+import { productBannerService } from '@/services/productBannerService';
+import type { ProductBanner } from '@/services/productBannerService';
+import { useState, useEffect } from 'react';
 
 interface DashboardProps {
   products: Product[];
@@ -10,6 +13,22 @@ interface DashboardProps {
 }
 
 export function Dashboard({ products, stores }: DashboardProps) {
+  const [productBanners, setProductBanners] = useState<ProductBanner[]>([]);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const response = await productBannerService.getActiveBanners();
+        if (response.success) {
+          setProductBanners(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch product banners', error);
+      }
+    };
+    fetchBanners();
+  }, []);
+
   const stats = [
     {
       title: 'Total Products',
@@ -90,8 +109,8 @@ export function Dashboard({ products, stores }: DashboardProps) {
           ))}
         </div>
 
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Three Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Products */}
           <Card className="border-0 shadow-sm">
             <CardContent className="p-6">
@@ -169,6 +188,41 @@ export function Dashboard({ products, stores }: DashboardProps) {
                     </div>
                   </Link>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Product Banners */}
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Active Banners</h3>
+                <Link to="/product-banners" className="text-sm text-red-600 hover:text-red-700 font-medium">
+                  Manage
+                </Link>
+              </div>
+              <div className="space-y-4">
+                {productBanners.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500 text-sm">
+                    No active product banners
+                  </div>
+                ) : (
+                  productBanners.slice(0, 5).map((banner) => (
+                    <Link key={banner._id} to={`/product-banners/edit/${banner._id}`} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                      <div className="w-16 h-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0 border border-gray-200">
+                        {banner.productImage ? (
+                          <img src={banner.productImage} alt={banner.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <ImageIcon className="w-6 h-6 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{banner.title}</p>
+                        <p className="text-xs text-gray-500 truncate">{banner.description}</p>
+                      </div>
+                    </Link>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
